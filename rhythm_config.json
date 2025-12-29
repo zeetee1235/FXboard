@@ -1,0 +1,55 @@
+{
+  "audio": {
+    "sampleRate": 48000,
+    "bufferSize": 128,
+    "comment": "Lower buffer size = lower latency (try 64 or 32 for ultra-low latency)"
+  },
+  "keyMappings": {
+    "comment": "Map keyboard keys to samples. Scancode reference:",
+    "reference": {
+      "numbers": "2-11 = 1-0",
+      "topRow": "16-25 = QWERTYUIOP",
+      "homeRow": "30-38 = ASDFGHJKL",
+      "bottomRow": "44-50 = ZXCVBNM"
+    },
+    "mappings": [
+      {"scancode": 30, "key": "A", "sample": "kick"},
+      {"scancode": 31, "key": "S", "sample": "snare"},
+      {"scancode": 32, "key": "D", "sample": "hihat"},
+      {"scancode": 33, "key": "F", "sample": "clap"},
+      {"scancode": 34, "key": "G", "sample": "rim"},
+      {"scancode": 35, "key": "H", "sample": "tom"},
+      {"scancode": 36, "key": "J", "sample": "crash"},
+      {"scancode": 37, "key": "K", "sample": "click"},
+      {"scancode": 16, "key": "Q", "sample": "beep1"},
+      {"scancode": 17, "key": "W", "sample": "beep2"},
+      {"scancode": 18, "key": "E", "sample": "beep3"},
+      {"scancode": 19, "key": "R", "sample": "beep4"}
+    ]
+  },
+  "fx": {
+    "filter": {
+      "enabled": false,
+      "cutoff": 1000.0,
+      "resonance": 0.7
+    },
+    "bitcrusher": {
+      "enabled": false,
+      "bits": 8,
+      "sampleRate": 8000
+    },
+    "reverb": {
+      "enabled": false,
+      "roomSize": 0.5,
+      "damping": 0.5,
+      "wetLevel": 0.3
+    }
+  },
+  "rhythm": {
+    "comment": "Rhythm game specific settings",
+    "visualFeedback": true,
+    "keyHighlightDuration": 100,
+    "showLatency": true,
+    "targetLatency": 10.0
+  }
+}
