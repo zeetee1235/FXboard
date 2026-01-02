@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(FXBoard VERSION 0.1.0)
+project(FXBoard VERSION 0.2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# JUCE 프레임워크 추가 (FetchContent 사용)
+# JUCE 프레임워크 추가 (audio-only, no GUI)
 include(FetchContent)
 FetchContent_Declare(
     JUCE
@@ -17,9 +17,8 @@ FetchContent_MakeAvailable(JUCE)
 # 소스 파일 수집
 set(SOURCES
     src/main.cpp
-    src/app/MainApp.cpp
+    src/core/Application.cpp
     src/app/ConfigManager.cpp
-    src/app/SettingsWindow.cpp
     src/input/KeyHook.cpp
     src/audio/AudioEngine.cpp
     src/audio/SampleManager.cpp
@@ -29,14 +28,11 @@ set(SOURCES
 
 # 헤더 파일 경로
 set(HEADERS
+    src/core/Application.h
     src/core/EventQueue.h
     src/core/Smoother.h
     src/core/KeyEvent.h
-    src/app/MainApp.h
     src/app/ConfigManager.h
-    src/app/RhythmGameUI.h
-    src/app/ModernUI.h
-    src/app/SettingsWindow.h
     src/input/KeyHook.h
     src/input/KeyState.h
     src/audio/AudioEngine.h
@@ -45,29 +41,23 @@ set(HEADERS
     src/audio/FX.h
 )
 
-# 실행 파일 생성
-juce_add_gui_app(FXBoard
+# 실행 파일 생성 (console app, not GUI)
+juce_add_console_app(FXBoard
     PRODUCT_NAME "FXBoard"
-    COMPANY_NAME "FXBoard"
-    BUNDLE_ID "com.fxboard.app"
 )
 
 target_sources(FXBoard PRIVATE ${SOURCES} ${HEADERS})
 
-# JUCE 모듈 추가
+# JUCE 모듈 추가 (audio only, no GUI modules)
 target_link_libraries(FXBoard
     PRIVATE
         juce::juce_audio_basics
         juce::juce_audio_devices
         juce::juce_audio_formats
-        juce::juce_audio_processors
         juce::juce_audio_utils
         juce::juce_core
         juce::juce_data_structures
         juce::juce_events
-        juce::juce_graphics
-        juce::juce_gui_basics
-        juce::juce_gui_extra
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
@@ -82,11 +72,15 @@ target_compile_definitions(FXBoard
     PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
-        JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:FXBoard,JUCE_PRODUCT_NAME>"
-        JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:FXBoard,JUCE_VERSION>"
 )
 
 # 플랫폼별 설정
 if(UNIX AND NOT APPLE)
-    target_link_libraries(FXBoard PRIVATE X11)
+    # No X11 needed for console-only app
+    target_link_libraries(FXBoard PRIVATE pthread)
 endif()
+
+# Install target
+install(TARGETS FXBoard
+    RUNTIME DESTINATION bin
+)
