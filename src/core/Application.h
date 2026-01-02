@@ -2,7 +2,7 @@
 
 #include "../audio/AudioEngine.h"
 #include "../input/KeyHook.h"
-#include "ConfigManager.h"
+#include "../app/ConfigManager.h"
 #include <memory>
 #include <atomic>
 

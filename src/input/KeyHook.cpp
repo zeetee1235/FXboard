@@ -108,10 +108,14 @@ int KeyHook::findKeyboardDevice() {
         // Score the device based on how keyboard-like it is
         int score = 0;
         
-        // Check for common keyboard keys
-        if (keybit[KEY_A/sizeof(long)/8] & (1 << (KEY_A % (sizeof(long)*8)))) score += 10;
-        if (keybit[KEY_SPACE/sizeof(long)/8] & (1 << (KEY_SPACE % (sizeof(long)*8)))) score += 10;
-        if (keybit[KEY_ENTER/sizeof(long)/8] & (1 << (KEY_ENTER % (sizeof(long)*8)))) score += 10;
+        // Check for common keyboard keys (using proper bit testing)
+        auto test_bit = [&](unsigned int bit) -> bool {
+            return !!(keybit[bit / (sizeof(long) * 8)] & (1UL << (bit % (sizeof(long) * 8))));
+        };
+        
+        if (test_bit(KEY_A)) score += 10;
+        if (test_bit(KEY_SPACE)) score += 10;
+        if (test_bit(KEY_ENTER)) score += 10;
         
         // Penalize devices with mouse-like names
         juce::String deviceName(name);
