@@ -19,6 +19,7 @@ set(SOURCES
     src/main.cpp
     src/app/MainApp.cpp
     src/app/ConfigManager.cpp
+    src/app/SettingsWindow.cpp
     src/input/KeyHook.cpp
     src/audio/AudioEngine.cpp
     src/audio/SampleManager.cpp
@@ -33,6 +34,9 @@ set(HEADERS
     src/core/KeyEvent.h
     src/app/MainApp.h
     src/app/ConfigManager.h
+    src/app/RhythmGameUI.h
+    src/app/ModernUI.h
+    src/app/SettingsWindow.h
     src/input/KeyHook.h
     src/input/KeyState.h
     src/audio/AudioEngine.h

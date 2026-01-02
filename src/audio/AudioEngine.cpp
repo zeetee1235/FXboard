@@ -74,6 +74,22 @@ void AudioEngine::mapKeyToSample(uint32_t scancode, const juce::String& sampleId
     }
 }
 
+void AudioEngine::unmapKey(uint32_t scancode) {
+    if (scancode < MAX_KEYS) {
+        keyToSampleMap[scancode] = juce::String();
+    }
+}
+
+std::map<uint32_t, juce::String> AudioEngine::getKeyMappings() const {
+    std::map<uint32_t, juce::String> mappings;
+    for (uint32_t i = 0; i < MAX_KEYS; ++i) {
+        if (keyToSampleMap[i].isNotEmpty()) {
+            mappings[i] = keyToSampleMap[i];
+        }
+    }
+    return mappings;
+}
+
 void AudioEngine::audioDeviceAboutToStart(juce::AudioIODevice* device) {
     juce::Logger::writeToLog("Audio device started: " + device->getName());
     xrunCount = 0;

@@ -50,9 +50,21 @@ public:
      */
     int getNumSamples() const { return static_cast<int>(samples.size()); }
     
+    /**
+     * 모든 샘플 ID 반환
+     */
+    juce::StringArray getAllSampleIds() const;
+    
+    /**
+     * 샘플 게인 설정/가져오기
+     */
+    void setSampleGain(const juce::String& id, float gain);
+    float getSampleGain(const juce::String& id) const;
+    
 private:
     juce::AudioFormatManager formatManager;
     std::map<juce::String, std::unique_ptr<Sample>> samples;
+    std::map<juce::String, float> sampleGains;
 };
 
 /**

@@ -60,6 +60,26 @@ void SampleManager::clear() {
     samples.clear();
 }
 
+juce::StringArray SampleManager::getAllSampleIds() const {
+    juce::StringArray ids;
+    for (const auto& [id, sample] : samples) {
+        ids.add(id);
+    }
+    return ids;
+}
+
+void SampleManager::setSampleGain(const juce::String& id, float gain) {
+    sampleGains[id] = gain;
+}
+
+float SampleManager::getSampleGain(const juce::String& id) const {
+    auto it = sampleGains.find(id);
+    if (it != sampleGains.end()) {
+        return it->second;
+    }
+    return 1.0f;
+}
+
 // SampleVoice 구현
 
 void SampleVoice::trigger(const Sample* sample, float velocity) {

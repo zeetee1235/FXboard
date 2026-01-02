@@ -49,9 +49,24 @@ public:
     SampleManager& getSampleManager() { return sampleManager; }
     
     /**
+     * 디바이스 매니저 반환
+     */
+    juce::AudioDeviceManager& getDeviceManager() { return deviceManager; }
+    
+    /**
      * 키에 샘플 매핑
      */
     void mapKeyToSample(uint32_t scancode, const juce::String& sampleId);
+    
+    /**
+     * 키 매핑 제거
+     */
+    void unmapKey(uint32_t scancode);
+    
+    /**
+     * 모든 키 매핑 반환
+     */
+    std::map<uint32_t, juce::String> getKeyMappings() const;
     
     /**
      * FX 활성화/비활성화
