@@ -45,17 +45,20 @@ void KeyHook::processKeyUp(uint32_t scancode) {
 
 #if JUCE_LINUX
 
-// /dev/input에서 키보드 디바이스 찾기
+// /dev/input에서 키보드 디바이스 찾기 (개선된 버전)
 int KeyHook::findKeyboardDevice() {
     DIR* dir = opendir("/dev/input");
     if (!dir) {
         juce::Logger::writeToLog("Failed to open /dev/input directory");
+        juce::Logger::writeToLog("You may need to run: sudo ./scripts/setup_permissions.sh");
         return -1;
     }
     
     struct dirent* entry;
     int fd = -1;
+    int bestScore = 0;
     
+    // Try to find the best keyboard device (prefer actual keyboards over mice, etc.)
     while ((entry = readdir(dir)) != nullptr) {
         if (strncmp(entry->d_name, "event", 5) != 0) {
             continue;
@@ -66,30 +69,87 @@ int KeyHook::findKeyboardDevice() {
         
         int testFd = open(path, O_RDONLY | O_NONBLOCK);
         if (testFd < 0) {
-            continue;  // 권한 없으면 다음 디바이스 시도
+            // Log permission errors for debugging
+            if (errno == EACCES || errno == EPERM) {
+                juce::Logger::writeToLog(juce::String("Permission denied for: ") + juce::String(path));
+            }
+            continue;
         }
         
-        // 디바이스 이름 확인
+        // Get device name
         char name[256] = "Unknown";
-        ioctl(testFd, EVIOCGNAME(sizeof(name)), name);
-        
-        juce::Logger::writeToLog(juce::String("Found input device: ") + juce::String(path) + " - " + juce::String(name));
-        
-        // 키보드 기능이 있는지 확인
-        unsigned long evbit = 0;
-        ioctl(testFd, EVIOCGBIT(0, sizeof(evbit)), &evbit);
-        
-        if (evbit & (1 << EV_KEY)) {
-            // 키보드로 보이는 첫 번째 디바이스 사용
-            juce::Logger::writeToLog(juce::String("Using keyboard device: ") + juce::String(path));
-            fd = testFd;
-            break;
+        if (ioctl(testFd, EVIOCGNAME(sizeof(name)), name) < 0) {
+            close(testFd);
+            continue;
         }
         
-        close(testFd);
+        juce::Logger::writeToLog(juce::String("Checking input device: ") + juce::String(path) + 
+                                 " - " + juce::String(name));
+        
+        // Check if device supports keyboard events
+        unsigned long evbit[EV_MAX/sizeof(long)/8 + 1] = {0};
+        if (ioctl(testFd, EVIOCGBIT(0, sizeof(evbit)), evbit) < 0) {
+            close(testFd);
+            continue;
+        }
+        
+        if (!(evbit[0] & (1 << EV_KEY))) {
+            close(testFd);
+            continue;
+        }
+        
+        // Check for actual keyboard keys (not just mouse buttons)
+        unsigned long keybit[KEY_MAX/sizeof(long)/8 + 1] = {0};
+        if (ioctl(testFd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) < 0) {
+            close(testFd);
+            continue;
+        }
+        
+        // Score the device based on how keyboard-like it is
+        int score = 0;
+        
+        // Check for common keyboard keys
+        if (keybit[KEY_A/sizeof(long)/8] & (1 << (KEY_A % (sizeof(long)*8)))) score += 10;
+        if (keybit[KEY_SPACE/sizeof(long)/8] & (1 << (KEY_SPACE % (sizeof(long)*8)))) score += 10;
+        if (keybit[KEY_ENTER/sizeof(long)/8] & (1 << (KEY_ENTER % (sizeof(long)*8)))) score += 10;
+        
+        // Penalize devices with mouse-like names
+        juce::String deviceName(name);
+        if (deviceName.containsIgnoreCase("mouse") || deviceName.containsIgnoreCase("touchpad")) {
+            score -= 50;
+        }
+        // Prefer devices with keyboard-like names
+        if (deviceName.containsIgnoreCase("keyboard") || deviceName.containsIgnoreCase("kbd")) {
+            score += 20;
+        }
+        
+        juce::Logger::writeToLog(juce::String("  Device score: ") + juce::String(score));
+        
+        if (score > bestScore) {
+            if (fd >= 0) {
+                close(fd);  // Close previous best
+            }
+            fd = testFd;
+            bestScore = score;
+            juce::Logger::writeToLog(juce::String("  ^ New best keyboard device"));
+        } else {
+            close(testFd);
+        }
     }
     
     closedir(dir);
+    
+    if (fd >= 0) {
+        juce::Logger::writeToLog("Successfully opened keyboard device");
+    } else {
+        juce::Logger::writeToLog("Failed to find suitable keyboard device");
+        juce::Logger::writeToLog("Make sure:");
+        juce::Logger::writeToLog("  1. Your user is in the 'input' group: groups | grep input");
+        juce::Logger::writeToLog("  2. udev rules are installed: ls /etc/udev/rules.d/99-fxboard.rules");
+        juce::Logger::writeToLog("  3. You've logged out and back in after adding to group");
+        juce::Logger::writeToLog("Run: sudo ./scripts/setup_permissions.sh");
+    }
+    
     return fd;
 }
 

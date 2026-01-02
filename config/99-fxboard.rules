@@ -1,0 +1,8 @@
+# FXboard input device permissions
+# This allows users in the 'input' group to access keyboard input devices
+# Installation: sudo cp 99-fxboard.rules /etc/udev/rules.d/
+#              sudo udevadm control --reload-rules
+#              sudo udevadm trigger
+
+SUBSYSTEM=="input", MODE="0660", GROUP="input"
+KERNEL=="event*", SUBSYSTEM=="input", MODE="0660", GROUP="input"

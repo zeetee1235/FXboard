@@ -1,0 +1,49 @@
+{
+  "audio": {
+    "sampleRate": 48000,
+    "bufferSize": 128,
+    "outputChannels": 2,
+    "deviceName": ""
+  },
+  "keymapping": {
+    "30": "kick",
+    "31": "snare",
+    "32": "hihat",
+    "33": "clap"
+  },
+  "samples": {
+    "kick": {
+      "file": "samples/kick.wav",
+      "gain": 1.0
+    },
+    "snare": {
+      "file": "samples/snare.wav",
+      "gain": 0.9
+    },
+    "hihat": {
+      "file": "samples/hihat.wav",
+      "gain": 0.8
+    },
+    "clap": {
+      "file": "samples/clap.wav",
+      "gain": 0.85
+    }
+  },
+  "fx": {
+    "filter": {
+      "enabled": false,
+      "cutoff": 1000,
+      "resonance": 0.707
+    },
+    "bitcrusher": {
+      "enabled": false,
+      "bitDepth": 16,
+      "downsample": 1
+    },
+    "reverb": {
+      "enabled": false,
+      "mix": 0.0,
+      "decay": 0.5
+    }
+  }
+}
