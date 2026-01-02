@@ -43,8 +43,10 @@ private:
     void* hookHandle;
     static LRESULT CALLBACK keyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 #elif JUCE_LINUX
-    int deviceFd;
-    void readInputEvents();
+    int deviceFd;  // evdev file descriptor
+    std::unique_ptr<std::thread> hookThread;
+    void runHookThread();
+    int findKeyboardDevice();
 #elif JUCE_MAC
     void* eventTap;
     static CGEventRef eventCallback(CGEventTapProxy proxy, CGEventType type, 

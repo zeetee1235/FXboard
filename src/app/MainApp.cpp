@@ -107,13 +107,14 @@ void MainApp::initialise(const juce::String& commandLine) {
     menuModel = std::make_unique<AppMenuModel>(this);
     
     // 명령줄 인자에 따라 시작 방식 결정
-    if (commandLine.contains("--hidden") || commandLine.contains("-h")) {
-        juce::Logger::writeToLog("Starting in background mode");
-        // 백그라운드 모드로 시작 (창 표시 안 함)
-        // 사용자는 시스템 메뉴를 통해 창을 열 수 있음
-    } else {
+    if (commandLine.contains("--show") || commandLine.contains("-s")) {
+        juce::Logger::writeToLog("Starting with GUI window");
         // GUI 창 생성
         showMainWindow();
+    } else {
+        juce::Logger::writeToLog("Starting in background mode (use --show to display GUI)");
+        // 백그라운드 모드로 시작 (창 표시 안 함)
+        // 사용자는 Ctrl+Alt+F 단축키로 GUI를 열 수 있음
     }
 }
 
